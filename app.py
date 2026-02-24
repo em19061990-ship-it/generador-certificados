@@ -3,6 +3,16 @@ from fpdf import FPDF
 from datetime import datetime
 import os
 
+# --- INSERTAR ESTO PARA OCULTAR MARCAS ---
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    #stDecoration {display:none;}
+    </style>
+    """, unsafe_allow_html=True)
+
 # --- CÓDIGO PARA OCULTAR MARCA DE AGUA Y MENÚS ---
 hide_st_style = """
             <style>
