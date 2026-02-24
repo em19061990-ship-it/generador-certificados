@@ -60,7 +60,7 @@ def generate_certificate(name, date_obj):
     
     detalle_curso = (
         "Por completar el curso de barista integral de (Cata, Espresso, Latte Art, "
-        "Brewing) demostrando un profundo conocimiento en la preparacion de cafe de especialidad."
+        "Brewing) demostrando un profundo conocimiento en la preparación de café de especialidad."
     )
     
     # Centramos el bloque aumentando el espacio horizontal para que no salte a 3 líneas
