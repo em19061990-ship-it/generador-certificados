@@ -3,8 +3,19 @@ from fpdf import FPDF
 from datetime import datetime
 import os
 
+# --- CÓDIGO PARA OCULTAR MARCA DE AGUA Y MENÚS ---
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            #stDecoration {display:none;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
+
 # Configuración de la interfaz de la aplicación
-st.set_page_config(page_title="Genera tu Diploma Barista", page_icon="☕")
+st.set_page_config(page_title="Genera tu Certificado Barista", page_icon="☕")
 
 class CertificatePDF(FPDF):
     def add_background(self):
@@ -91,7 +102,7 @@ def generate_certificate(name, date_obj):
     return pdf.output(dest='S').encode('latin-1')
 
 # --- INTERFAZ DE USUARIO EN STREAMLIT ---
-st.title("☕ Genera tu Diploma Barista")
+st.title("☕ Genera tu Certificado Barista")
 st.write("Gracias por estar en el curso de Baristas Dulce Fénix.")
 
 with st.form("form_emision"):
