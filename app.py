@@ -95,7 +95,7 @@ st.title("☕ Generador de Certificados SCA")
 st.write("Emisión de diplomas profesionales con fondo personalizado.")
 
 with st.form("form_emision"):
-    nombre_alumno = st.text_input("Nombre completo del Alumno", placeholder="Ej. Enrique Morales")
+    nombre_alumno = st.text_input("Nombre completo del Alumno", placeholder="Ej. Dulce Fénix")
     fecha_curso = st.date_input("Selecciona la fecha del curso", value=datetime.now())
     
     submit = st.form_submit_button("Generar Diploma")
