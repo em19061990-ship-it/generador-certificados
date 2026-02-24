@@ -39,7 +39,7 @@ def generate_certificate(name, date_obj):
     
     pdf.set_font('Helvetica', '', 18)
     pdf.set_text_color(60, 60, 60)
-    pdf.cell(0, 10, 'De participacion', ln=True, align='C')
+    pdf.cell(0, 10, 'De participación', ln=True, align='C')
     
     # --- CUERPO DEL TEXTO ---
     pdf.ln(25)
