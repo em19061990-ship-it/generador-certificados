@@ -5,17 +5,14 @@ import os
 
 class CertificatePDF(FPDF):
     def header(self):
-        # Borde decorativo elegante (Color café oscuro/dorado)
+        # Borde decorativo elegante
         self.set_draw_color(100, 50, 20) 
         self.set_line_width(1.5)
-        # Rectángulo principal (ajustado a formato vertical P)
         self.rect(10, 10, 190, 277)
-        # Línea interior más delgada para un toque sofisticado
         self.set_line_width(0.5)
         self.rect(12, 12, 186, 273)
 
 def generate_certificate(name, date_obj):
-    # Formatear la fecha a texto (ej: 22 de Febrero de 2026)
     meses = {
         1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio",
         7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
@@ -25,7 +22,7 @@ def generate_certificate(name, date_obj):
     pdf = CertificatePDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
-    # --- ENCABEZADO ---
+    # Título
     pdf.set_y(45)
     pdf.set_font('Helvetica', 'B', 38)
     pdf.set_text_color(100, 50, 20)
@@ -35,19 +32,17 @@ def generate_certificate(name, date_obj):
     pdf.set_text_color(60, 60, 60)
     pdf.cell(0, 10, 'DE PARTICIPACIÓN', ln=True, align='C')
     
-    # --- CUERPO ---
+    # Cuerpo
     pdf.ln(25)
     pdf.set_font('Helvetica', '', 15)
     pdf.set_text_color(30, 30, 30)
     pdf.cell(0, 10, 'El reconocimiento es para:', ln=True, align='C')
     
-    # Nombre del alumno (Grande y destacado)
     pdf.ln(5)
     pdf.set_font('Helvetica', 'B', 30)
-    pdf.set_text_color(120, 90, 40) # Tono dorado/barista
+    pdf.set_text_color(120, 90, 40)
     pdf.cell(0, 20, name.upper(), ln=True, align='C')
     
-    # Descripción profesional
     pdf.ln(10)
     pdf.set_font('Helvetica', '', 13)
     pdf.set_text_color(40, 40, 40)
@@ -56,48 +51,58 @@ def generate_certificate(name, date_obj):
         "Latte Art, Brewing) demostrando un profundo conocimiento "
         "en la preparación de café de especialidad."
     )
-    pdf.set_x(25) # Margen lateral para el texto
+    pdf.set_x(25)
     pdf.multi_cell(160, 9, texto_detalle, align='C')
     
-    # --- PIE DE PÁGINA (FIRMA Y DATOS) ---
-    
-    # Espacio para la firma
+    # Firma (se posiciona antes del texto del instructor)
     if os.path.exists("firma.png"):
-        # Centrado sobre el nombre del instructor
-        pdf.image("firma.png", x=135, y=210, w=45)
+        pdf.image("firma.png", x=140, y=215, w=40)
     
-    pdf.set_y(240)
-    
+    pdf.set_y(245)
     # Izquierda: Ubicación y Fecha
     pdf.set_x(25)
     pdf.set_font('Helvetica', 'B', 10)
-    pdf.cell(80, 5, 'Metepec, Estado de México', ln=True, align='L')
+    pdf.cell(80, 5, 'Metepec, Estado de México', ln=1, align='L')
     pdf.set_x(25)
     pdf.set_font('Helvetica', '', 10)
-    pdf.cell(80, 5, fecha_formateada, ln=False, align='L')
+    pdf.cell(80, 5, fecha_formateada, ln=0, align='L')
     
-    # Derecha: Instructor (alineado con la firma)
-    pdf.set_y(240)
+    # Derecha: Instructor
+    pdf.set_y(245)
     pdf.set_x(115)
     pdf.set_font('Helvetica', 'B', 11)
-    pdf.cell(70, 5, 'Enrique Morales Medina', ln=True, align='R')
+    pdf.cell(70, 5, 'Enrique Morales Medina', ln=1, align='R')
     pdf.set_x(115)
     pdf.set_font('Helvetica', '', 10)
-    pdf.cell(70, 5, 'Impartido por Barista Certificado SCA', ln=True, align='R')
+    pdf.cell(70, 5, 'Impartido por Barista Certificado SCA', ln=0, align='R')
     
     return pdf.output(dest='S').encode('latin-1')
 
-# --- INTERFAZ DE STREAMLIT ---
-st.set_page_config(page_title="Generador de Certificados", page_icon="☕", layout="centered")
-
-st.markdown("""
-    <style>
-    .main { text-align: center; }
-    .stButton>button { width: 100%; border-radius: 20px; background-color: #643214; color: white; }
-    </style>
-    """, unsafe_allow_html=True)
+# Interfaz Streamlit
+st.set_page_config(page_title="Generador de Certificados", page_icon="☕")
 
 st.title("☕ Generador de Certificados SCA")
-st.subheader("Configuración de Reconocimiento Profesional")
+st.subheader("Configuración de Reconocimiento")
 
+# EL FORMULARIO (CORREGIDO)
 with st.form("form_diseno"):
+    nombre_input = st.text_input("Nombre del Alumno", placeholder="Escribe el nombre completo")
+    fecha_input = st.date_input("Selecciona la fecha del curso", value=datetime.now())
+    # El botón DEBE estar dentro del bloque 'with'
+    submit_button = st.form_submit_button("Generar Certificado")
+
+if submit_button:
+    if nombre_input:
+        try:
+            pdf_data = generate_certificate(nombre_input, fecha_input)
+            st.success(f"✅ ¡Certificado para {nombre_input} generado!")
+            st.download_button(
+                label="⬇️ Descargar PDF",
+                data=pdf_data,
+                file_name=f"Certificado_{nombre_input.replace(' ', '_')}.pdf",
+                mime="application/pdf"
+            )
+        except Exception as e:
+            st.error(f"Error al generar: {e}")
+    else:
+        st.warning("Escribe el nombre del alumno.")
