@@ -35,7 +35,7 @@ def generate_certificate(name, date_obj):
     pdf.set_y(75)
     pdf.set_font('Helvetica', 'B', 42)
     pdf.set_text_color(100, 50, 20) # Café oscuro
-    pdf.cell(0, 15, 'CERTIFICADO', ln=True, align='C')
+    pdf.cell(0, 15, 'DIPLOMA', ln=True, align='C')
     
     pdf.set_font('Helvetica', '', 18)
     pdf.set_text_color(60, 60, 60)
