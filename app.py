@@ -3,81 +3,84 @@ from fpdf import FPDF
 from datetime import datetime
 import os
 
-# Configuración inicial de la página
+# Configuración de la página de Streamlit
 st.set_page_config(page_title="Generador de Certificados SCA", page_icon="☕")
 
 class CertificatePDF(FPDF):
-    def header(self):
-        # Doble borde decorativo (Color Café)
-        self.set_draw_color(100, 50, 20) 
-        self.set_line_width(1.5)
-        self.rect(10, 10, 190, 277)
-        self.set_line_width(0.5)
-        self.rect(12, 12, 186, 273)
+    def add_background(self):
+        # Si el archivo fondo.png existe, se pone como fondo de toda la página
+        if os.path.exists("fondo.png"):
+            # x=0, y=0, w=210 (ancho A4), h=297 (alto A4)
+            self.image("fondo.png", 0, 0, 210, 297)
 
 def generate_certificate(name, date_obj):
-    # Diccionario para nombres de meses en español
-    meses = {
+    # Traductor de meses
+    meses_es = {
         1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio",
         7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
     }
-    fecha_formateada = f"{date_obj.day} de {meses[date_obj.month]} de {date_obj.year}"
+    fecha_texto = f"{date_obj.day} de {meses_es[date_obj.month]} de {date_obj.year}"
 
+    # Creamos el PDF
     pdf = CertificatePDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
-    # --- LOGOTIPO ---
-    # Se añade solo si el archivo logo.png existe en el repositorio
+    # 1. Ponemos el fondo primero
+    pdf.add_background()
+    
+    # 2. Logotipo circular (si existe)
     if os.path.exists("logo.png"):
-        pdf.image("logo.png", x=150, y=20, w=40)
+        pdf.image("logo.png", x=155, y=25, w=35)
 
-    # --- ENCABEZADO ---
-    pdf.set_y(50)
-    pdf.set_font('Helvetica', 'B', 40)
-    pdf.set_text_color(100, 50, 20)
+    # --- TEXTO SOBRE EL FONDO ---
+    
+    # Título Principal
+    pdf.set_y(75) # Ajustado para que no choque con las ondas superiores
+    pdf.set_font('Helvetica', 'B', 42)
+    pdf.set_text_color(100, 50, 20) # Color café oscuro
     pdf.cell(0, 15, 'CERTIFICADO', ln=True, align='C')
     
     pdf.set_font('Helvetica', '', 18)
     pdf.set_text_color(60, 60, 60)
-    pdf.cell(0, 10, 'De participacion', ln=True, align='C')
+    pdf.cell(0, 10, 'De participación', ln=True, align='C')
     
-    # --- CUERPO ---
+    # Cuerpo
     pdf.ln(25)
     pdf.set_font('Helvetica', '', 15)
     pdf.set_text_color(30, 30, 30)
     pdf.cell(0, 10, 'El reconocimiento es para:', ln=True, align='C')
     
+    # Nombre del Alumno
     pdf.ln(5)
     pdf.set_font('Helvetica', 'B', 32)
-    pdf.set_text_color(120, 90, 40)
+    pdf.set_text_color(120, 90, 40) # Color café dorado
     pdf.cell(0, 20, name.upper(), ln=True, align='C')
     
+    # Detalle del curso
     pdf.ln(10)
     pdf.set_font('Helvetica', '', 13)
     pdf.set_text_color(40, 40, 40)
-    
-    # Texto del curso (Sin caracteres especiales complejos para evitar errores de PDF)
-    detalle_curso = (
+    detalle = (
         "Por completar el curso de barista integral de (Cata, Espresso, "
         "Latte Art, Brewing) demostrando un profundo conocimiento "
-        "en la preparacion de cafe de especialidad."
+        "en la preparación de café de especialidad."
     )
     pdf.set_x(25)
-    pdf.multi_cell(160, 9, detalle_curso, align='C')
+    pdf.multi_cell(160, 9, detalle, align='C')
     
-    # --- PIE DE PAGINA ---
-    pdf.set_y(250)
+    # --- PIE DE PÁGINA (Sobre las ondas inferiores) ---
+    pdf.set_y(255)
     
-    # Izquierda: Ubicacion y Fecha
+    # Izquierda: Ubicación y Fecha
     pdf.set_x(25)
     pdf.set_font('Helvetica', 'B', 10)
-    pdf.cell(80, 5, 'Metepec, Estado de Mexico', ln=1, align='L')
+    pdf.cell(80, 5, 'Metepec, Estado de México', ln=1, align='L')
     pdf.set_x(25)
     pdf.set_font('Helvetica', '', 10)
-    pdf.cell(80, 5, fecha_formateada, ln=0, align='L')
+    pdf.cell(80, 5, fecha_texto, ln=0, align='L')
     
     # Derecha: Instructor
-    pdf.set_y(250)
+    pdf.set_y(255)
     pdf.set_x(115)
     pdf.set_font('Helvetica', 'B', 11)
     pdf.cell(70, 5, 'Enrique Morales Medina', ln=1, align='R')
@@ -87,32 +90,27 @@ def generate_certificate(name, date_obj):
     
     return pdf.output(dest='S').encode('latin-1')
 
-# --- INTERFAZ DE STREAMLIT ---
+# --- INTERFAZ STREAMLIT ---
 st.title("☕ Generador de Certificados SCA")
-st.write("Ingresa los datos del alumno para generar el diploma.")
+st.write("Crea diplomas con fondo personalizado.")
 
-# El formulario agrupa los elementos y evita que la app se recargue a cada momento
-with st.form("generador_form"):
-    nombre = st.text_input("Nombre del Alumno", placeholder="Ej: Juan Perez")
-    
-    # Calendario: Streamlit usa el idioma del navegador. 
-    # Si tu navegador esta en español, se vera en español.
-    fecha = st.date_input("Selecciona la fecha", value=datetime.now())
-    
-    boton_crear = st.form_submit_button("Generar Certificado")
+with st.form("form_final"):
+    nombre_alumno = st.text_input("Nombre completo del Alumno")
+    fecha_curso = st.date_input("Fecha del curso", value=datetime.now())
+    boton = st.form_submit_button("Generar Diploma")
 
-if boton_crear:
-    if nombre:
+if boton:
+    if nombre_alumno:
         try:
-            archivo_pdf = generate_certificate(nombre, fecha)
-            st.success(f"✅ ¡Certificado para {nombre} generado con éxito!")
+            pdf_bytes = generate_certificate(nombre_alumno, fecha_curso)
+            st.success(f"✅ Certificado generado con fondo para {nombre_alumno}")
             st.download_button(
                 label="⬇️ Descargar PDF",
-                data=archivo_pdf,
-                file_name=f"Certificado_{nombre.replace(' ', '_')}.pdf",
+                data=pdf_bytes,
+                file_name=f"Certificado_{nombre_alumno.replace(' ', '_')}.pdf",
                 mime="application/pdf"
             )
         except Exception as e:
-            st.error(f"Ocurrió un error al generar el PDF: {e}")
+            st.error(f"Error: {e}")
     else:
-        st.warning("⚠️ Por favor, ingresa el nombre del alumno.")
+        st.warning("⚠️ Escribe el nombre del alumno.")
