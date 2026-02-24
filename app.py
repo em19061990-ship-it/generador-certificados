@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 
 # Configuración de la interfaz de la aplicación
-st.set_page_config(page_title="Generador de Diploma Barista", page_icon="☕")
+st.set_page_config(page_title="Genera tu Diploma Barista", page_icon="☕")
 
 class CertificatePDF(FPDF):
     def add_background(self):
@@ -91,7 +91,7 @@ def generate_certificate(name, date_obj):
     return pdf.output(dest='S').encode('latin-1')
 
 # --- INTERFAZ DE USUARIO EN STREAMLIT ---
-st.title("☕ Generador de Diploma Barista")
+st.title("☕ Genera tu Diploma Barista")
 st.write("Gracias por estar en el curso de Baristas Dulce Fénix.")
 
 with st.form("form_emision"):
