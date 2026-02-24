@@ -1,13 +1,14 @@
 import streamlit as st
 from fpdf import FPDF
 from datetime import datetime
+import os
 
 class CertificatePDF(FPDF):
     def header(self):
         # Marco exterior
         self.set_line_width(1)
         self.rect(5, 5, 287, 200)
-        # Marco interior dorado (simulado con gris oscuro/marrón)
+        # Marco interior dorado (simulado con color café/dorado)
         self.set_draw_color(180, 150, 100)
         self.set_line_width(2)
         self.rect(10, 10, 277, 190)
@@ -40,6 +41,13 @@ def generate_certificate(name, date):
     pdf.set_font('Helvetica', '', 14)
     pdf.cell(0, 10, f'Fecha del curso: {date}', ln=True, align='C')
     
+    # --- SECCIÓN DE FIRMA E INSTRUCTOR ---
+    
+    # Posicionamos para la firma (encima del nombre)
+    if os.path.exists("firma.png"):
+        # x=215 para alinear a la derecha, y=145 para estar arriba del texto
+        pdf.image("firma.png", x=220, y=140, w=45) 
+    
     # Información del Instructor (Abajo a la derecha)
     pdf.set_y(170)
     pdf.set_x(200)
@@ -51,6 +59,7 @@ def generate_certificate(name, date):
     pdf.set_font('Helvetica', '', 10)
     pdf.cell(80, 5, 'Barista SCA 000111222333', ln=True, align='R')
     
+    # Usamos 'latin-1' para evitar errores de caracteres especiales
     return pdf.output(dest='S').encode('latin-1')
 
 # Interfaz de Streamlit
@@ -72,16 +81,19 @@ with st.form("certificate_form"):
 
 if submit:
     if nombre:
-        fecha_str = fecha.strftime("%d/%m/%Y")
-        pdf_bytes = generate_certificate(nombre, fecha_str)
-        
-        st.success(f"¡Certificado para {nombre} listo!")
-        
-        st.download_button(
-            label="Descargar Certificado PDF",
-            data=pdf_bytes,
-            file_name=f"Certificado_{nombre.replace(' ', '_')}.pdf",
-            mime="application/pdf"
-        )
+        try:
+            fecha_str = fecha.strftime("%d/%m/%Y")
+            pdf_bytes = generate_certificate(nombre, fecha_str)
+            
+            st.success(f"¡Certificado para {nombre} listo!")
+            
+            st.download_button(
+                label="Descargar Certificado PDF",
+                data=pdf_bytes,
+                file_name=f"Certificado_{nombre.replace(' ', '_')}.pdf",
+                mime="application/pdf"
+            )
+        except Exception as e:
+            st.error(f"Hubo un error al generar el PDF: {e}")
     else:
         st.error("Por favor, ingresa el nombre del participante.")
