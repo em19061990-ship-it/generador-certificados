@@ -73,7 +73,7 @@ def generate_certificate(name, date_obj):
     # Ubicación y Fecha (Izquierda)
     pdf.set_x(25)
     pdf.set_font('Helvetica', 'B', 10)
-    pdf.cell(80, 5, 'Metepec, Estado de Mexico', ln=1, align='L')
+    pdf.cell(80, 5, 'Metepec, Estado de México', ln=1, align='L')
     pdf.set_x(25)
     pdf.set_font('Helvetica', '', 10)
     pdf.cell(80, 5, fecha_texto, ln=0, align='L')
