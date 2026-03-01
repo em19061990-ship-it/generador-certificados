@@ -2,7 +2,8 @@ name: Mantener Streamlit Despierto
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    # Se ejecuta cada 12 horas (mediodía y medianoche)
+    - cron: '0 */12 * * *'
   workflow_dispatch:
 
 jobs:
@@ -12,10 +13,12 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v3
 
-      - name: Realizar un commit vacío
+      - name: Actualizar log de actividad
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git commit --allow-empty -m "Ping para mantener la app despierta"
+          # Crea o actualiza un archivo con la fecha actual
+          echo "Último pulso: $(date)" > actividad.txt
+          git add actividad.txt
+          git commit -m "Pulso de actividad: $(date)"
           git push
-
